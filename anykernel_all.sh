@@ -74,15 +74,3 @@ KSUD_PATH="/data/adb/ksud"
         else
             [ ! -f "$KSUD_PATH" ] && ui_print "错误：未找到 KSUD，跳过安装"
         fi
-
-if [ -f "$KSUD_PATH" ] && [ -f "$AKHOME/Zram_Configuration.zip" ]; then
-            ui_print "正在安装 Zram_Configuration 模块..."
-            /data/adb/ksud module install "$AKHOME/Zram_Configuration.zip"
-            ui_print "安装成功！"
-            ui_print "此模块默认将zRAM的压缩算法设置为 lz4kd"
-            ui_print "将zRAM大小调整为16GB"
-            ui_print "后续可在管理器的模块详情切换算法和大小"
-        else
-            [ ! -f "$KSUD_PATH" ] && ui_print "错误：未找到 KSUD，跳过安装"
-            [ ! -f "$AKHOME/Zram_Configuration.zip" ] && ui_print "错误：模块文件缺失，跳过安装"
-        fi
