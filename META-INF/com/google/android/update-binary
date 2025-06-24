@@ -581,6 +581,22 @@ if [ "$(file_getprop anykernel.sh do.cleanup)" == 1 ]; then
   cleanup;
 fi;
 
-ui_print " " "Done!";
+ui_print " " "全部搞定～😋!";
+
+sleep 0.2
+ui_print "肌寒い風が今は心地よかった~♪"
+sleep 0.2
+ui_print "住宅街の明かりがまるで蛍のようだ~♪"
+sleep 0.2
+ui_print "君の肩がぶつかって思わず君の方を見る~♪"
+sleep 0.2
+ui_print "ああやっぱり　好きだなあ~♪"
+sleep 0.2
+ui_print "夜の世界にたった一つ君と私の温もりが揺れた~♪"
+sleep 0.2
+ui_print "幸せだ~♪"
+sleep 0.2
+ui_print "(。´・ω・)ん?"
+sleep 0.3
 export PATH="$OLD_PATH";
 unset OLD_PATH OUTFD ZIPFILE;
