@@ -2,6 +2,7 @@
 
 AKHOME="$(dirname "$(readlink -f "$0")")"
 
+
 properties() { '
 kernel.string=KernelSU by KernelSU Developers
 do.devicecheck=0
@@ -125,7 +126,7 @@ check_kernel_version() {
     
     kernel_version=$(cat /proc/version | awk -F '[- ]' '{print $3}')
     case $kernel_version in
-        5.1*|6.1*) ksu_supported=true ;;
+        6.6*) ksu_supported=true ;;
         *) ksu_supported=false ;;
     esac
     
@@ -187,7 +188,12 @@ apply_kpm_patch() {
             if [ "$PATCH_EXIT_CODE" -eq 0 ]; then
                 [ ! -f "oImage" ] && abort "ERROR：oImage 未生成，补丁可能失败 ❌"
                 mv oImage Image
-                cp Image "$split_img/kernel" || abort "ERROR：复制补丁后 Image 到 AnyKernel3 临时目录失败 ❌"
+                cp "$TMPDIR/Image" "$AKHOME/split_img" || abort "ERROR：复制补丁后 Image 到 AnyKernel3 临时目录失败 ❌"
+                cp "$TMPDIR/Image" "$AKHOME"
+                cd "$AKHOME/split_img"
+                mv "$AKHOME/split_img/Image" "kernel"
+                cd "$AKHOME"
+                mv "$AKHOME/Image" "kernel"
                 ui_print "-> KPM 补丁应用完成 🎉"
                 rm -rf "$TMPDIR"
                 KPM_PATCH_SUCCESS=true
@@ -219,7 +225,7 @@ install_zram_module() {
     ui_print "-----------------------------------------"
     ui_print "-> 进入 ZRAM 模块安装阶段"
     ui_print "可用于启用&修改官方不支持的zram特性"
-    ui_print "添加算法导致默认ZRAM设置为了4GB建议安装来调节大小……？"
+    ui_print "添加算法好像导致默认ZRAM设置为了4GB建议安装来调节大小……？"
     detect_key_press "是否安装 ZRAM 管理模块" "安装模块🥰" "跳过安装😰"
     [ $? -ne 0 ] && return
     ui_print "-> 开始安装 ZRAM 模块 'zram_module.zip'... 📦"
@@ -283,22 +289,20 @@ install_manager_apk() {
     detect_key_press "是否安装管理器" "安装管理器🥰" "跳过安装😰"
     [ $? -ne 0 ] && return
     ui_print "-> 开始安装管理器... 📦"
-    APK_DIR="$AKHOME/tools/Others/"
-
-    # 查找 APK 目录下的所有 .apk 文件
-    local APK_LIST=("$APK_DIR"*.apk)
-    if [ "${#APK_LIST[@]}" -eq 0 ]; then
-        ui_print "ERROR：找不到 管理器文件，跳过安装 ❌"
-        return
+    search_path="$AKHOME/tools/Others"
+    MANAGER_APK=$(ls "$search_path"/*.apk 2>/dev/null | head -n1)
+    if [ -z "$MANAGER_APK" ]; then
+        echo "错误：在 $search_path 目录下未找到任何 APK 文件"
+        exit 1
+    else
+        echo "找到管理器 APK: $MANAGER_APK"
     fi
-
-    MANAGER_APK="${APK_LIST[0]}"
 
     if [ ! -f "$MANAGER_APK" ]; then
         ui_print "ERROR：找不到 管理器文件 $MANAGER_APK，跳过安装 ❌"
     else
         ui_print "-> 正在执行管理器安装命令..."
-        pm install -g -t -r "$MANAGER_APK"
+        pm install "$MANAGER_APK"
         if [ $? -eq 0 ]; then
             ui_print "✅ 管理器安装成功！"
         else
@@ -306,8 +310,6 @@ install_manager_apk() {
         fi
     fi
 }
-
-
 
 main() {
     show_header
